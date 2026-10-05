@@ -1,18 +1,20 @@
-import React from "react";
+import { Search } from "lucide-react";
 
 const SearchName = ({ search }) => {
+  const isSearching = search && search.trim() !== "";
+
   return (
-    <div className="w-full bg-white px-10 pt-8 pb-4 flex-wrap sm:pt-4">
-      <p className="text-4xl font-[800] sm:text-2xl">
-        HD Wallpaper Images & Pictures
-      </p>
-      <p className="mt-2 text-gray-600 sm:text-sm">
-        300,000+ royalty free wallpaper images or photos. Download & use the
-        best wallpapers on your phone, desktop background, website & more.
-      </p>
-      <p className="mt-10 font-semibold sm:mt-4">
-        Showing Results for "{search}" and similar Tags:
-      </p>
+    <div className="mb-8">
+      {isSearching ? (
+        <h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 sm:text-4xl">
+          <Search size={28} className="text-gray-400" strokeWidth={2.5} />
+          Results for <span className="text-gray-900">'{search}'</span>
+        </h1>
+      ) : (
+        <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+          Explore our community
+        </h1>
+      )}
     </div>
   );
 };
