@@ -1,47 +1,38 @@
-import React, { useState, useEffect } from "react";
-import Navbar from "../components/Dashboard/Navbar";
-import Hero from "../components/Dashboard/Hero";
-import { bg1, bg2, bg4, bg5, bg6, bg7, bg8 } from "../assets/bgImages/bgImage";
-import ImageType from "../components/Dashboard/ImageType";
-import Footer from "../components/Dashboard/Footer";
+import Navbar from "../components/layout/Navbar";
+import Hero from "../components/home/Hero";
+import HeroBackground from "../components/home/HeroBackground";
+import ImageType from "../components/home/ImageType";
+import Footer from "../components/layout/Footer";
+import ImageGrid from "../components/ui/ImageGrid";
+import { usePixabayQuery } from "../hooks/usePixabayQuery";
 
-function HomePage() {
-  const backgrounds = [bg1, bg2, bg4, bg5, bg6, bg7, bg8];
-  const [currentBackground, setCurrentBackground] = useState(bg8);
-
-  useEffect(() => {
-    const preloadedImages = backgrounds.map((bg) => {
-      const img = new Image();
-      img.src = bg;
-      return img;
-    });
-
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-      setCurrentBackground(preloadedImages[currentIndex].src);
-      currentIndex = (currentIndex + 1) % preloadedImages.length;
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+const HomePage = () => {
+  const { data, isLoading, isError } = usePixabayQuery({
+    image_type: "photo",
+    order: "popular",
+  });
 
   return (
-    <>
-      <div
-        className="flex items-center flex-col w-full bg-no-repeat bg-cover h-[28rem]"
-        style={{
-          backgroundImage: `url(${currentBackground})`,
-          transition: "background-image 2s ease, background-position 0s ease",
-        }}
-      >
-        <div className="absolute top-0 left-0 w-full h-[28rem] bg-black opacity-40"></div>
+    // Added page-fade-in for smooth loading transition
+    <div className="flex flex-col min-h-screen bg-gray-50 page-fade-in">
+      <header className="relative mx-2 mt-2 min-h-[26rem] overflow-hidden rounded-3xl sm:mx-4 sm:mt-4 lg:min-h-[32rem]">
+        <HeroBackground />
         <Navbar />
         <Hero />
-      </div>
-      <ImageType />
+      </header>
+
+      <main className="flex-1 w-full mx-auto max-w-7xl">
+        <ImageType />
+        <ImageGrid
+          hits={data?.hits || []}
+          isLoading={isLoading}
+          isError={isError}
+        />
+      </main>
+
       <Footer />
-    </>
+    </div>
   );
-}
+};
 
 export default HomePage;
