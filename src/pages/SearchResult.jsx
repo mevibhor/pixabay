@@ -1,48 +1,67 @@
 import { useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import CardSection from "../components/Search/CardSection";
-import ImageDetail from "../components/Modal/ImageDetail";
-import Navbar from "../components/Dashboard/Navbar";
-import Search from "../components/Dashboard/Search";
-import SearchName from "../components/Search/SearchName";
-import Footer from "../components/Dashboard/Footer";
+import { useMemo } from "react";
+import Navbar from "../components/layout/Navbar";
+import Search from "../components/search/Search";
+import SearchName from "../components/search/SearchName";
+import SimilarTags from "../components/search/SimilarTags";
+import Footer from "../components/layout/Footer";
+import ImageGrid from "../components/ui/ImageGrid";
+import { usePixabayQuery } from "../hooks/usePixabayQuery";
 
 const SearchResult = () => {
   const [searchParams] = useSearchParams();
-  const search = searchParams.get("search");
+  const search = searchParams.get("search") || "";
   const searchType = searchParams.get("type");
-  const openModalId = searchParams.get("openModalId");
-  const [searchResults, setSearchResults] = useState([]);
+  const imageType = searchParams.get("image_type");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const apiUrl =
-        searchType === "videos"
-          ? "https://pixabay.com/api/videos/"
-          : "https://pixabay.com/api/";
-      const apiKey = import.meta.env.VITE_PIXABAY_API_KEY;
+  const queryParams = {
+    q: search,
+    type: searchType,
+  };
 
-      try {
-        const response = await fetch(`${apiUrl}?key=${apiKey}&q=${search}`);
-        const searchData = await response.json();
-        setSearchResults(searchData.hits);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, [search, searchType]);
+  if (searchType !== "videos" && imageType) {
+    queryParams.image_type = imageType;
+  }
+
+  const { data, isLoading, isError } = usePixabayQuery(queryParams);
+
+  const relatedTags = useMemo(() => {
+    if (!data?.hits) return [];
+    const uniqueTags = new Set();
+    data.hits.forEach((hit) => {
+      if (hit.tags)
+        hit.tags.split(",").forEach((tag) => uniqueTags.add(tag.trim()));
+    });
+    return Array.from(uniqueTags).slice(0, 15);
+  }, [data]);
 
   return (
-    <div className="bg-black">
-      <Navbar />
-      <div className="mt-[-49px] sm:mt-[-26px] mb-4 sm:w-[85%] sm:m-8">
-        <Search />
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* 1. Dark Header Section (Matches Screenshot Top) */}
+      <div className="pt-2 pb-12 text-white bg-black">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <Navbar />
+          {/* Search Bar centered/wide below navbar */}
+          <div className="max-w-4xl mt-4">
+            <Search isDarkMode={true} />
+          </div>
+        </div>
       </div>
-      <SearchName search={search} />
-      <CardSection searchResults={searchResults} search={search} />
+
+      {/* 2. White Content Section */}
+      <main className="flex-1 w-full px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <SearchName search={search} />
+
+        {relatedTags.length > 0 && <SimilarTags tags={relatedTags} />}
+
+        <ImageGrid
+          hits={data?.hits || []}
+          isLoading={isLoading}
+          isError={isError}
+        />
+      </main>
+
       <Footer />
-      {openModalId && <ImageDetail id={openModalId} />}
     </div>
   );
 };
