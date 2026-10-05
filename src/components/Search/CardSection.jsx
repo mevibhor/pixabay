@@ -1,40 +1,37 @@
-import { useState, useEffect } from "react";
+import { ImageOff } from "lucide-react";
 import CardLayout from "./CardLayout";
-import sad from "../../assets/sad.svg";
 
-const CardSection = ({ searchResults }) => {
-  const [loading, setLoading] = useState(true);
+const CardSection = ({ searchResults, isLoading, isError }) => {
+  // 1. Skeleton Loading Animation
+  if (isLoading) {
+    return (
+      <div className="gap-4 p-4 space-y-4 bg-white columns-1 sm:columns-2 lg:columns-3 xl:columns-4 sm:p-8">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="mb-4 overflow-hidden bg-gray-200 break-inside-avoid rounded-xl animate-pulse"
+            style={{ height: `${Math.random() * 150 + 200}px` }} // Random heights for masonry skeleton
+          />
+        ))}
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setTimeout(() => {
-        setLoading(false);
-      }, 1500);
-    };
-    fetchData();
-  }, []);
+  // 2. Error or Empty State
+  if (isError || !searchResults || searchResults.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center bg-white">
+        <ImageOff size={48} className="mb-4 text-gray-400" />
+        <p className="text-xl font-semibold text-gray-900">No results found!</p>
+        <p className="mt-2 text-gray-500">
+          Try adjusting your search or filters.
+        </p>
+      </div>
+    );
+  }
 
-  return (
-    <>
-      {loading ? (
-        <div className="flex items-center p-8 gap-4 flex-wrap justify-center bg-white">
-          {[...Array(8)].map((placeholderId) => (
-            <div
-              key={placeholderId}
-              className="w-[350px] h-[250px] flex flex-col justify-center bg-gray-300 animate-pulse"
-            />
-          ))}
-        </div>
-      ) : searchResults.length === 0 ? (
-        <div className="text-center bg-white w-full flex items-center text-black flex-col">
-          <img src={sad} />
-          <p className="text-xl font-semibold mt-4 mb-12">No results found!</p>
-        </div>
-      ) : (
-        <CardLayout searchResults={searchResults} />
-      )}
-    </>
-  );
+  // 3. Success State
+  return <CardLayout searchResults={searchResults} />;
 };
 
 export default CardSection;
