@@ -9,7 +9,6 @@ import {
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
-
 import {
   getFirestore,
   setDoc,
@@ -34,199 +33,118 @@ const googleProvider = new GoogleAuthProvider();
 const firestore = getFirestore(firebaseApp);
 
 const FirebaseContext = createContext(null);
-
 export const useFirebase = () => useContext(FirebaseContext);
 
-export const FirebaseProvider = (props) => {
+export const FirebaseProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [error, setError] = useState(null);
-  const [showNotification, setShowNotification] = useState(false);
 
+  // Only one useEffect needed: for auth state
   useEffect(() => {
-    if (showNotification) {
-      setTimeout(() => {
-        setShowNotification(false);
-      }, 3000);
-    }
-  }, [showNotification]);
-
-  useEffect(() => {
-    onAuthStateChanged(firebaseAuth, (user) => {
-      if (user) setUser(user);
-      else setUser(null);
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
+      setUser(currentUser);
     });
+    return () => unsubscribe();
   }, []);
 
+  // Auth methods (return promises directly)
+  const signUpWithEmailAndPassword = (email, password) =>
+    createUserWithEmailAndPassword(firebaseAuth, email, password);
+
+  const logInWithEmailAndPassword = (email, password) =>
+    signInWithEmailAndPassword(firebaseAuth, email, password);
+
+  const userWithGoogleAccount = () =>
+    signInWithPopup(firebaseAuth, googleProvider);
+
+  const logOut = () => signOut(firebaseAuth);
+
+  // Firestore methods
   const addToFavorites = async (imageId, imageURL, imageType, currentTime) => {
-    try {
-      await setDoc(
-        doc(firestore, "users", user.uid),
-        {
-          favorites: arrayUnion({
-            id: imageId,
-            url: imageURL,
-            type: imageType,
-            time: currentTime,
-          }),
-        },
-        { merge: true }
-      );
-    } catch (error) {
-      setError(error.message);
-      console.log(error.message);
-    }
+    if (!user) throw new Error("User not logged in");
+    return setDoc(
+      doc(firestore, "users", user.uid),
+      {
+        favorites: arrayUnion({
+          id: imageId,
+          url: imageURL,
+          type: imageType,
+          time: currentTime,
+        }),
+      },
+      { merge: true },
+    );
   };
 
   const getFavoriteImages = async () => {
-    try {
-      if (user) {
-        const userDocRef = doc(firestore, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          return userData.favorites || [];
-        }
-      }
-      return [];
-    } catch (error) {
-      console.error("Error fetching favorite images:", error);
-      throw error;
-    }
+    if (!user) return [];
+    const userDoc = await getDoc(doc(firestore, "users", user.uid));
+    return userDoc.exists() ? userDoc.data().favorites || [] : [];
   };
 
   const removeFromFavorites = async (imageId) => {
-    try {
-      const userDocRef = doc(firestore, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const favorites = userData.favorites || [];
-        const updatedFavorites = favorites.filter(
-          (favorite) => favorite.id !== imageId
-        );
-        await updateDoc(userDocRef, { favorites: updatedFavorites });
-      }
-    } catch (error) {
-      console.error("Error removing from favorites:", error);
-      setError(error.message);
+    if (!user) throw new Error("User not logged in");
+    const userDoc = await getDoc(doc(firestore, "users", user.uid));
+    if (userDoc.exists()) {
+      const favorites = userDoc.data().favorites || [];
+      const updated = favorites.filter((f) => f.id !== imageId);
+      return updateDoc(doc(firestore, "users", user.uid), {
+        favorites: updated,
+      });
     }
   };
 
   const addToDownloads = async (imageId, imageURL, imageType, currentTime) => {
-    try {
-      await setDoc(
-        doc(firestore, "users", user.uid),
-        {
-          downloads: arrayUnion({
-            id: imageId,
-            url: imageURL,
-            type: imageType,
-            time: currentTime,
-          }),
-        },
-        { merge: true }
-      );
-    } catch (error) {
-      setError(error.message);
-      console.log(error.message);
-    }
+    if (!user) throw new Error("User not logged in");
+    return setDoc(
+      doc(firestore, "users", user.uid),
+      {
+        downloads: arrayUnion({
+          id: imageId,
+          url: imageURL,
+          type: imageType,
+          time: currentTime,
+        }),
+      },
+      { merge: true },
+    );
   };
 
   const getDownloads = async () => {
-    try {
-      if (user) {
-        const userDocRef = doc(firestore, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          return userData.downloads || [];
-        }
-      }
-      return [];
-    } catch (error) {
-      console.error("Error fetching favorite images:", error);
-      throw error;
-    }
+    if (!user) return [];
+    const userDoc = await getDoc(doc(firestore, "users", user.uid));
+    return userDoc.exists() ? userDoc.data().downloads || [] : [];
   };
 
   const removeFromDownloads = async (imageId) => {
-    try {
-      const userDocRef = doc(firestore, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const downloads = userData.downloads || [];
-        const updatedDownloads = downloads.filter(
-          (download) => download.id !== imageId
-        );
-        await updateDoc(userDocRef, { downloads: updatedDownloads });
-      }
-    } catch (error) {
-      console.error("Error removing from downloads:", error);
-      setError(error.message);
+    if (!user) throw new Error("User not logged in");
+    const userDoc = await getDoc(doc(firestore, "users", user.uid));
+    if (userDoc.exists()) {
+      const downloads = userDoc.data().downloads || [];
+      const updated = downloads.filter((d) => d.id !== imageId);
+      return updateDoc(doc(firestore, "users", user.uid), {
+        downloads: updated,
+      });
     }
   };
-
-  const signUpWithEmailAndPassword = async (email, password) => {
-    try {
-      await createUserWithEmailAndPassword(firebaseAuth, email, password);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-
-  const logInWithEmailAndPassword = async (email, password) => {
-    try {
-      await signInWithEmailAndPassword(firebaseAuth, email, password);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-
-  const userWithGoogleAccount = async () => {
-    try {
-      await signInWithPopup(firebaseAuth, googleProvider);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-
-  const logOut = async () => {
-    try {
-      await signOut(firebaseAuth);
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-
-  const clearError = () => {
-    setError(null);
-  };
-
-  const isLoggedIn = user ? true : false;
 
   return (
     <FirebaseContext.Provider
       value={{
+        user,
+        isLoggedIn: !!user,
         signUpWithEmailAndPassword,
         logInWithEmailAndPassword,
         userWithGoogleAccount,
-        isLoggedIn,
         logOut,
-        user,
-        error,
-        clearError,
         addToFavorites,
-        removeFromFavorites,
         getFavoriteImages,
+        removeFromFavorites,
         addToDownloads,
         getDownloads,
         removeFromDownloads,
-        showNotification,
-        setShowNotification,
       }}
     >
-      {props.children}
+      {children}
     </FirebaseContext.Provider>
   );
 };
