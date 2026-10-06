@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ImageOff } from "lucide-react";
-import ImageDetail from "../modals/ImageDetail";
+import MediaDetail from "../modals/MediaDetail";
 
 // Helper component for individual image loading state
 const ImageCard = ({ item, onClick }) => {
@@ -92,7 +92,7 @@ const ImageGrid = ({ hits = [], isLoading, isError }) => {
       </div>
 
       {isModalOpen && (
-        <ImageDetail
+        <MediaDetail
           id={modalData.id}
           type={modalData.type}
           handleCloseModal={() => setIsModalOpen(false)}

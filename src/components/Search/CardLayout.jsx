@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ImageDetail from "../modals/ImageDetail";
+import MediaDetail from "../modals/MediaDetail";
 
 const CardLayout = ({ searchResults, isHomePage }) => {
   const [modalData, setModalData] = useState({ id: null, type: null });
@@ -51,7 +51,7 @@ const CardLayout = ({ searchResults, isHomePage }) => {
       </div>
 
       {isModalOpen && (
-        <ImageDetail
+        <MediaDetail
           id={modalData.id}
           type={modalData.type}
           handleCloseModal={() => setIsModalOpen(false)}
