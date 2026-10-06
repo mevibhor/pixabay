@@ -1,0 +1,40 @@
+import { createContext, useCallback, useContext, useState } from "react";
+
+const ModalContext = createContext(null);
+
+export const ModalProvider = ({ children }) => {
+  const [modal, setModal] = useState(null);
+
+  const openLogin = useCallback(() => {
+    setModal("login");
+  }, []);
+
+  const openSignup = useCallback(() => {
+    setModal("signup");
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModal(null);
+  }, []);
+
+  const value = {
+    modal,
+    openLogin,
+    openSignup,
+    closeModal,
+  };
+
+  return (
+    <ModalContext.Provider value={value}>{children}</ModalContext.Provider>
+  );
+};
+
+export const useAuthModal = () => {
+  const context = useContext(ModalContext);
+
+  if (!context) {
+    throw new Error("useAuthModal must be used inside ModalProvider");
+  }
+
+  return context;
+};
