@@ -36,12 +36,12 @@ const Footer = () => {
           <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4">
             {navLinks.map((link) => (
               <li key={link}>
-                <a
-                  href="#"
+                <button
+                  type="button"
                   className="text-sm font-medium text-gray-600 transition-colors duration-200 hover:text-gray-900"
                 >
                   {link}
-                </a>
+                </button>
               </li>
             ))}
           </ul>
@@ -52,14 +52,14 @@ const Footer = () => {
           {socialLinks.map((social) => {
             const Icon = social.icon;
             return (
-              <a
+              <button
                 key={social.name}
-                href="#"
+                type="button"
                 aria-label={social.name}
                 className="flex items-center justify-center w-10 h-10 text-gray-600 transition-all duration-300 bg-gray-200 rounded-full hover:bg-gray-900 hover:text-white hover:-translate-y-1"
               >
                 <Icon size={18} strokeWidth={2} />
-              </a>
+              </button>
             );
           })}
         </div>

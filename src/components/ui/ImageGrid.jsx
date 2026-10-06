@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ImageOff } from "lucide-react";
-import MediaDetail from "../modals/MediaDetail";
+import MediaDetail from "../media/MediaDetail";
 
 // Helper component for individual image loading state
 const ImageCard = ({ item, onClick }) => {
