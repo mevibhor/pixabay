@@ -10,6 +10,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
+  updateProfile,
 } from "firebase/auth";
 
 import { getFirestore, doc, getDoc, runTransaction } from "firebase/firestore";
@@ -18,8 +19,8 @@ const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_PIXABAY_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_PIXABAY_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_PIXABAY_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_PIXABAY_MESSAGING_SENDER_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
@@ -77,8 +78,20 @@ export const FirebaseProvider = ({ children }) => {
   // Authentication
   // ------------------------------------------
 
-  const signUpWithEmailAndPassword = (email, password) => {
-    return createUserWithEmailAndPassword(firebaseAuth, email, password);
+  const signUpWithEmailAndPassword = async (name, email, password) => {
+    const userCredential = await createUserWithEmailAndPassword(
+      firebaseAuth,
+      email,
+      password,
+    );
+
+    await updateProfile(userCredential.user, {
+      displayName: name,
+    });
+
+    setUser(userCredential.user);
+
+    return userCredential;
   };
 
   const logInWithEmailAndPassword = (email, password) => {

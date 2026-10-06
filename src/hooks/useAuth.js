@@ -25,8 +25,8 @@ export const useAuth = () => {
   });
 
   const signupMutation = useMutation({
-    mutationFn: ({ email, password }) =>
-      signUpWithEmailAndPassword(email, password),
+    mutationFn: ({ name, email, password }) =>
+      signUpWithEmailAndPassword(name, email, password),
 
     onSuccess: () => {
       toast.success("Account created successfully!");

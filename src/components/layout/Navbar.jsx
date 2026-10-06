@@ -29,12 +29,41 @@ const pillStyle = `
   ${focusRing}
 `;
 
+const getDisplayName = (user) => {
+  if (user?.displayName?.trim()) {
+    return user.displayName.trim();
+  }
+
+  if (user?.email) {
+    return user.email.split("@")[0];
+  }
+
+  return "User";
+};
+
+const getInitials = (name) => {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) {
+    return "U";
+  }
+
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+};
+
 const Navbar = () => {
   const navigate = useNavigate();
 
-  const { isLoggedIn, logOut } = useFirebase();
+  const { user, isLoggedIn, logOut } = useFirebase();
 
   const { openLogin, openSignup } = useAuthModal();
+
+  const displayName = getDisplayName(user);
+  const initials = getInitials(displayName);
 
   const handleLogOut = async () => {
     try {
@@ -58,7 +87,7 @@ const Navbar = () => {
         />
       </Link>
 
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3">
         {isLoggedIn ? (
           <>
             <Link to="/favourites" className={linkStyle}>
@@ -73,7 +102,42 @@ const Navbar = () => {
               <span className="hidden md:inline">Downloads</span>
             </Link>
 
-            <button type="button" onClick={handleLogOut} className={pillStyle}>
+            <div
+              className="flex items-center gap-2 px-1.5 py-1.5 sm:px-3 rounded-full border border-white/10 bg-white/10"
+              title={user?.email || displayName}
+            >
+              <div className="flex items-center justify-center w-8 h-8 overflow-hidden bg-white rounded-full shrink-0">
+                {user?.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={displayName}
+                    className="object-cover w-full h-full"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="text-xs font-bold text-gray-900">
+                    {initials}
+                  </span>
+                )}
+              </div>
+
+              <div className="hidden min-w-0 sm:block">
+                <p className="text-[10px] leading-none text-gray-300">
+                  Welcome,
+                </p>
+
+                <p className="max-w-[130px] mt-1 text-sm font-semibold leading-none text-white truncate">
+                  {displayName}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogOut}
+              className={pillStyle}
+              aria-label="Log out"
+            >
               <LogOut size={16} />
 
               <span className="hidden sm:inline">Log out</span>

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { Mail, Lock, X, Loader2 } from "lucide-react";
+import { Mail, Lock, User, X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import googleLogo from "../../assets/google.svg";
 import { useAuth } from "../../hooks/useAuth";
@@ -38,16 +39,24 @@ const SignupModal = () => {
 
     const formData = new FormData(event.currentTarget);
 
-    const email = formData.get("email");
+    const name = formData.get("name")?.trim();
+    const email = formData.get("email")?.trim();
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
 
+    if (!name) {
+      toast.error("Please enter your name.");
+      return;
+    }
+
     if (password !== confirmPassword) {
+      toast.error("Passwords do not match.");
       return;
     }
 
     try {
       await signup({
+        name,
         email,
         password,
       });
@@ -100,6 +109,29 @@ const SignupModal = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="block">
+              <span className="block mb-2 text-sm font-medium text-gray-700">
+                Full name
+              </span>
+
+              <div className="relative">
+                <User
+                  size={18}
+                  className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2"
+                />
+
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  minLength={2}
+                  autoComplete="name"
+                  placeholder="Your name"
+                  className="w-full py-3 pl-10 pr-4 text-sm border border-gray-200 outline-none rounded-xl focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10"
+                />
+              </div>
+            </label>
+
             <label className="block">
               <span className="block mb-2 text-sm font-medium text-gray-700">
                 Email
@@ -183,7 +215,9 @@ const SignupModal = () => {
 
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-gray-200" />
+
             <span className="text-xs text-gray-400">OR</span>
+
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
