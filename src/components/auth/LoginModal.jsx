@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Mail, Lock, X, Loader2 } from "lucide-react";
-
+import googleLogo from "../../assets/google.svg";
 import { useAuth } from "../../hooks/useAuth";
 import { useAuthModal } from "../../context/ModalContext";
 
@@ -167,7 +167,7 @@ const LoginModal = () => {
             {isGooglePending ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
-              <img src="/src/assets/google.svg" alt="" className="w-5 h-5" />
+              <img src={googleLogo} alt="Google" className="w-5 h-5" />
             )}
 
             {isGooglePending ? "Connecting..." : "Continue with Google"}
