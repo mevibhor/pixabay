@@ -1,42 +1,70 @@
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, ChevronDown, Search as SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 
 const searchTypes = [
-  { value: "Images", label: "Images" },
-  { value: "videos", label: "Videos" },
+  {
+    value: "images",
+    label: "Images",
+  },
+  {
+    value: "videos",
+    label: "Videos",
+  },
 ];
 
-const Search = () => {
+const Search = ({ selectedType, onTypeChange }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
   const initialSearch = searchParams.get("search") ?? "";
-  const initialType =
-    searchParams.get("type") === "videos" ? "videos" : "Images";
+
+  const urlType = searchParams.get("type") === "videos" ? "videos" : "images";
+
+  const [localType, setLocalType] = useState(urlType);
+
+  const type = selectedType ?? localType;
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
     const formData = new FormData(event.currentTarget);
-    const query = formData.get("search").trim().toLowerCase();
-    const type = formData.get("type");
+
+    const query = formData.get("search")?.trim().toLowerCase();
 
     if (!query) {
       toast.info("Please enter a search term.", {
         description: "Try 'nature' or 'technology'",
       });
+
       inputRef.current?.focus();
+
       return;
     }
 
-    navigate(`/search?${new URLSearchParams({ type, search: query })}`);
+    const params = new URLSearchParams({
+      type,
+      search: query,
+    });
+
+    navigate(`/search?${params.toString()}`);
+  };
+
+  const handleTypeChange = (event) => {
+    const nextType = event.target.value;
+
+    if (onTypeChange) {
+      onTypeChange(nextType);
+      return;
+    }
+
+    setLocalType(nextType);
   };
 
   return (
     <form
-      key={`${initialType}-${initialSearch}`} // Excellent pattern to reset form on URL change
       role="search"
       onSubmit={handleSubmit}
       className="flex items-center w-full max-w-3xl gap-2 px-4 py-2 transition-all duration-300 ease-in-out border rounded-full group border-white/30 bg-white/10 backdrop-blur-md hover:bg-white/20 focus-within:border-white/60 focus-within:bg-white/25 focus-within:ring-2 focus-within:ring-white/30"
@@ -61,7 +89,8 @@ const Search = () => {
       <div className="relative pl-3 border-l shrink-0 border-white/30">
         <select
           name="type"
-          defaultValue={initialType}
+          value={type}
+          onChange={handleTypeChange}
           aria-label="Search type"
           className="py-2 pl-1 pr-6 text-sm text-white bg-transparent appearance-none cursor-pointer focus:outline-none sm:text-base"
         >
@@ -75,6 +104,7 @@ const Search = () => {
             </option>
           ))}
         </select>
+
         <ChevronDown
           size={16}
           className="absolute -translate-y-1/2 pointer-events-none right-1 top-1/2 text-white/80"

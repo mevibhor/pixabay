@@ -108,6 +108,7 @@ const LoginModal = () => {
                   type="email"
                   name="email"
                   required
+                  defaultValue="testprofile@pixabay.com"
                   autoComplete="email"
                   placeholder="you@example.com"
                   className="w-full py-3 pl-10 pr-4 text-sm border border-gray-200 outline-none rounded-xl focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10"
@@ -130,6 +131,7 @@ const LoginModal = () => {
                   type="password"
                   name="password"
                   required
+                  defaultValue="Test@12345"
                   autoComplete="current-password"
                   placeholder="Your password"
                   className="w-full py-3 pl-10 pr-4 text-sm border border-gray-200 outline-none rounded-xl focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10"
@@ -150,7 +152,9 @@ const LoginModal = () => {
 
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-gray-200" />
+
             <span className="text-xs text-gray-400">OR</span>
+
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 

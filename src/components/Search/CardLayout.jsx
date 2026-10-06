@@ -1,7 +1,7 @@
 import { useState } from "react";
 import MediaDetail from "../modals/MediaDetail";
 
-const CardLayout = ({ searchResults, isHomePage }) => {
+const CardLayout = ({ searchResults }) => {
   const [modalData, setModalData] = useState({ id: null, type: null });
   const [isModalOpen, setIsModalOpen] = useState(false);
 

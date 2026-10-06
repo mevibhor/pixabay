@@ -18,9 +18,10 @@ import { useImageDetail } from "../../hooks/useImageDetail";
 import { useFavorites, useDownloads } from "../../hooks/useFirebaseData";
 
 const MediaDetail = ({ id, type, handleCloseModal }) => {
-  const { data, isLoading } = useImageDetail(id, type);
+  const { data, isLoading, isError } = useImageDetail(id, type);
 
   const { isLoggedIn } = useFirebase();
+
   const { openLogin } = useAuthModal();
 
   const {
@@ -144,8 +145,36 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
     );
   }
 
-  if (!item) {
-    return null;
+  if (isError || !item) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <button
+          type="button"
+          aria-label="Close media details"
+          onClick={handleCloseModal}
+          className="absolute inset-0 bg-black/80 backdrop-blur-md"
+        />
+
+        <div className="relative z-10 w-full max-w-md p-6 text-center bg-white shadow-2xl rounded-2xl">
+          <h2 className="text-lg font-bold text-gray-900">
+            Could not load this media
+          </h2>
+
+          <p className="mt-2 text-sm leading-relaxed text-gray-500">
+            Pixabay could not load this media right now. Please close this
+            window and try again.
+          </p>
+
+          <button
+            type="button"
+            onClick={handleCloseModal}
+            className="px-5 py-2.5 mt-5 text-sm font-semibold text-white bg-gray-900 rounded-xl hover:bg-gray-800"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const isVideo = item.type === "film" || item.type === "animation";
@@ -161,7 +190,6 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 lg:p-8 animate-modal-backdrop">
-      {/* Backdrop */}
       <button
         type="button"
         aria-label="Close media details"
@@ -169,9 +197,7 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
         className="absolute inset-0 w-full h-full cursor-default bg-black/85 backdrop-blur-md"
       />
 
-      {/* Modal */}
       <div className="relative z-10 flex w-full max-w-6xl max-h-[94vh] overflow-hidden bg-white border border-white/10 shadow-2xl rounded-2xl sm:rounded-3xl animate-modal-content">
-        {/* Close button */}
         <button
           type="button"
           onClick={handleCloseModal}
@@ -182,9 +208,7 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
         </button>
 
         <div className="flex flex-col w-full min-h-0 lg:flex-row">
-          {/* Media */}
           <div className="relative flex items-center justify-center min-h-[280px] max-h-[48vh] overflow-hidden bg-gray-950 lg:w-[62%] lg:min-h-[620px] lg:max-h-[94vh]">
-            {/* subtle background */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.08),_transparent_55%)]" />
 
             {isVideo ? (
@@ -202,7 +226,6 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
               />
             )}
 
-            {/* Media type badge */}
             <div className="absolute z-20 top-4 left-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold tracking-wide text-white uppercase border rounded-full bg-black/50 border-white/10 backdrop-blur-md">
                 <span className="w-1.5 h-1.5 bg-white rounded-full" />
@@ -211,10 +234,8 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
             </div>
           </div>
 
-          {/* Information */}
           <div className="flex flex-col min-h-0 overflow-y-auto lg:w-[38%]">
             <div className="p-5 sm:p-6 lg:p-7">
-              {/* Heading */}
               <div className="pr-10">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[11px] font-bold tracking-[0.18em] text-gray-400 uppercase">
@@ -233,7 +254,6 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
                 </h2>
               </div>
 
-              {/* Actions */}
               <div className="grid grid-cols-2 gap-3 mt-6">
                 <button
                   type="button"
@@ -285,7 +305,6 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
                 </button>
               </div>
 
-              {/* Coming soon notice */}
               <div className="flex gap-3 p-4 mt-4 border border-gray-200 bg-gray-50 rounded-xl">
                 <div className="flex items-center justify-center flex-shrink-0 text-gray-700 bg-white border border-gray-200 rounded-lg w-9 h-9">
                   <Sparkles size={16} />
@@ -303,7 +322,6 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
                 </div>
               </div>
 
-              {/* Stats */}
               <div className="grid grid-cols-3 mt-6 border border-gray-200 divide-x divide-gray-200 rounded-xl">
                 <div className="px-2 py-4 text-center">
                   <Eye size={16} className="mx-auto mb-1.5 text-gray-400" />
@@ -339,7 +357,6 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
                 </div>
               </div>
 
-              {/* Contributor */}
               <div className="flex items-center gap-3 p-4 mt-4 border border-gray-200 rounded-xl">
                 <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 text-gray-600 bg-gray-100 rounded-full">
                   <User size={18} />
@@ -356,7 +373,6 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
                 </div>
               </div>
 
-              {/* Tags */}
               {tags.length > 0 && (
                 <div className="mt-6">
                   <p className="flex items-center gap-1.5 mb-3 text-[11px] font-bold tracking-[0.15em] text-gray-400 uppercase">
@@ -378,7 +394,6 @@ const MediaDetail = ({ id, type, handleCloseModal }) => {
               )}
             </div>
 
-            {/* Bottom footer */}
             <div className="px-5 py-4 mt-auto border-t border-gray-100 bg-gray-50/80 sm:px-6">
               <p className="text-xs text-center text-gray-400">
                 Press{" "}

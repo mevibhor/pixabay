@@ -1,15 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { fetchPixabay } from "../api/pixabay";
 
 export const usePixabayQuery = (params = {}) => {
-  const { type, ...queryParams } = params;
+  const { type = "images", ...queryParams } = params;
+
+  const isVideo = type === "videos";
 
   return useQuery({
-    queryKey: ["pixabay", queryParams],
+    queryKey: ["pixabay", isVideo ? "videos" : "images", queryParams],
 
     queryFn: ({ signal }) =>
       fetchPixabay({
-        isVideo: type === "videos",
+        isVideo,
         params: {
           per_page: 20,
           order: "popular",

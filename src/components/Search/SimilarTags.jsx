@@ -3,23 +3,35 @@ import { Tag } from "lucide-react";
 
 const SimilarTags = ({ tags }) => {
   const [searchParams] = useSearchParams();
-  const searchType = searchParams.get("type");
+
+  const searchType =
+    searchParams.get("type") === "videos" ? "videos" : "images";
+
   const imageType = searchParams.get("image_type");
 
   const buildLink = (tag) => {
     const params = new URLSearchParams();
-    if (searchType) params.set("type", searchType);
-    if (imageType) params.set("image_type", imageType);
+
+    params.set("type", searchType);
+
+    if (searchType !== "videos" && imageType) {
+      params.set("image_type", imageType);
+    }
+
     params.set("search", tag);
+
     return `/search?${params.toString()}`;
   };
 
-  if (!tags || tags.length === 0) return null;
+  if (!tags || tags.length === 0) {
+    return null;
+  }
 
   return (
     <div className="pb-6 mb-8 border-b border-gray-100">
       <div className="flex items-center gap-2 mb-4 text-sm font-semibold text-gray-700">
         <Tag size={16} className="text-gray-500" />
+
         <span>Related searches</span>
       </div>
 
